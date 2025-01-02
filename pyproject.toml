@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0","requests","pandas","numpy","Bio","bs4"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "protparser"
+version = "0.0.1"
+authors = [
+  { name="Sophia Vincoff", email="sophia.vincoff@duke.edu" },
+]
+description = "A package for processing RCSB PDB IDs"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[project.urls]
+Homepage = "https://github.com/sophievincoff/protparser"

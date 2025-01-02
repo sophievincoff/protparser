@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: protparser
+Version: 0.0.1
+Summary: A package for processing RCSB PDB IDs
+Author-email: Sophia Vincoff <sophia.vincoff@duke.edu>
+Project-URL: Homepage, https://github.com/sophievincoff/protparser
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+Description-Content-Type: text/markdown
+License-File: LICENSE
+
+# proteinparser
+A collection of methods for parsing protein structures (RCSB PDBs, AlphaFold predictions, and more)

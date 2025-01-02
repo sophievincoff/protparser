@@ -1,0 +1,7 @@
+LICENSE
+README.md
+pyproject.toml
+protparser.egg-info/PKG-INFO
+protparser.egg-info/SOURCES.txt
+protparser.egg-info/dependency_links.txt
+protparser.egg-info/top_level.txt
