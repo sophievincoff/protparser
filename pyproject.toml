@@ -1,11 +1,6 @@
 [build-system]
 requires = [
-    "setuptools>=61.0",
-    "requests",
-    "bs4",
-    "biopython>=1.79",
-    "pandas>=1.0.0",
-    "numpy>=1.18.0",]
+    "setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -21,6 +16,13 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+]
+dependencies = [
+    "biopython>=1.79",
+    "pandas>=1.0.0",
+    "numpy>=1.18.0",
+    "requests",
+    "beautifulsoup4"
 ]
 
 [tool.setuptools.packages.find]
