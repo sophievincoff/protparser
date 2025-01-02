@@ -1,5 +1,11 @@
 [build-system]
-requires = ["setuptools>=61.0","requests","pandas","numpy","Bio","bs4"]
+requires = [
+    "setuptools>=61.0",
+    "requests",
+    "bs4",
+    "biopython>=1.79",
+    "pandas>=1.0.0",
+    "numpy>=1.18.0",]
 build-backend = "setuptools.build_meta"
 
 [project]
