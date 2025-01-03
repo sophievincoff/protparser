@@ -302,7 +302,7 @@ def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
             file.write(response.content)
         #print(f"File downloaded successfully and saved as {output_path}")
     else:
-        print(f"Failed to download file. Status code: {response.status_code}")
+        print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
         return None
     
     return output_path
