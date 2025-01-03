@@ -5,17 +5,21 @@ import numpy as np
 from Bio.PDB import MMCIFParser
 import requests
 import re
+import os
 from bs4 import BeautifulSoup
 
 class RCSBStructure:
     '''
     This class processes an ID from the RCSB PDB website to provide comprehensive information. 
     '''
-    def __init__(self, pdb_id, print_progress=False):
+    def __init__(self, pdb_id, download_struct=False, struct_format='cif', struct_save_dir=None, print_progress=False):
         self.pdb_id = pdb_id.upper()    # turn PDB ID to uppercase so user doesn't have to
         self.fasta_content = None       # will hold text from .fasta file
         self.chain_info = None          # will hold info extracted from this ID's webpage
         self._pull_fasta_and_chain_info(print_progress=print_progress)    # call method to initialize self.fasta_content, self.chain_info
+        
+        if download_struct:
+            download_rcsb(pdb_id, struct_format=struct_format, output_dir=struct_save_dir)
 
     def _pull_fasta_and_chain_info(self,print_progress=False):
         '''
@@ -275,3 +279,30 @@ class RCSBStructure:
         Getter method: returns self.chain_info for a chain of your choice
         '''
         return self.chain_info.get(chain, None)
+
+def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
+    '''
+    Download mmCIF file with provided uniprot_id and optional output_path for the downloaded file.
+
+    Return: path to downloaded file if successful, None otherwise
+    '''
+    full_file_name = f"{pdb_id}.{struct_format}"     # define file name that will be found on the AlphaFold2 database.
+    # if output path not provided, just save locally under full_file_name
+    output_path=full_file_name
+    if output_dir is not None:
+        os.makedirs(output_dir,exist_ok=True)
+        output_path = f"{output_dir}/{full_file_name}"
+
+    # request the URL for the file 
+    url = f"https://files.rcsb.org/download/{full_file_name}"
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        with open(output_path, 'wb') as file:
+            file.write(response.content)
+        #print(f"File downloaded successfully and saved as {output_path}")
+    else:
+        print(f"Failed to download file. Status code: {response.status_code}")
+        return None
+    
+    return output_path
