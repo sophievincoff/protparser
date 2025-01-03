@@ -2,7 +2,7 @@ import requests
 import json
 import pandas as pd
 import numpy as np
-from Bio.PDB import MMCIFParser
+from Bio.PDB import MMCIFParser, PDBIO
 import requests
 import re
 import os
@@ -279,13 +279,8 @@ class RCSBStructure:
         Getter method: returns self.chain_info for a chain of your choice
         '''
         return self.chain_info.get(chain, None)
-
-def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
-    '''
-    Download mmCIF file with provided uniprot_id and optional output_path for the downloaded file.
-
-    Return: path to downloaded file if successful, None otherwise
-    '''
+    
+def download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=None):
     full_file_name = f"{pdb_id}.{struct_format}"     # define file name that will be found on the AlphaFold2 database.
     # if output path not provided, just save locally under full_file_name
     output_path=full_file_name
@@ -296,13 +291,54 @@ def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
     # request the URL for the file 
     url = f"https://files.rcsb.org/download/{full_file_name}"
     response = requests.get(url)
+    return response, output_path
+
+def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
+    '''
+    Download mmCIF file with provided uniprot_id and optional output_path for the downloaded file.
+
+    Return: path to downloaded file if successful, None otherwise
+    '''
+    response, output_path = download_rcsb_apicall(pdb_id, struct_format=struct_format,output_dir=output_dir)
 
     if response.status_code == 200:
         with open(output_path, 'wb') as file:
             file.write(response.content)
         #print(f"File downloaded successfully and saved as {output_path}")
     else:
-        print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
+        # try downloading cif and converting to pdb, if pdb is the format. PDBs aren't available for everything on RCSB
+        if struct_format=='pdb':
+            response, output_path = download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=output_dir)
+            if response.status_code == 200:
+                with open(output_path, 'wb') as file:
+                    file.write(response.content)
+                convert_cif_to_pdb(output_path, output_path.replace('.cif','.pdb'))
+                os.remove(output_path)
+                print(f"Deleted original .cif file download. See {output_path.replace('.cif','.pdb')} for the PDB")
+            else:
+                print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
         return None
     
     return output_path
+
+def convert_cif_to_pdb(cif_file: str, pdb_file: str):
+    """
+    Converts an MMCIF (.cif) file to a PDB (.pdb) file.
+    
+    Args:
+        cif_file (str): Path to the input CIF file.
+        pdb_file (str): Path to the output PDB file.
+    """
+    try:
+        # Parse the CIF file
+        parser = MMCIFParser(QUIET=True)
+        structure = parser.get_structure('structure_id', cif_file)
+        
+        # Write to PDB format
+        io = PDBIO()
+        io.set_structure(structure)
+        io.save(pdb_file)
+        
+        print(f"Successfully converted {cif_file} to {pdb_file}")
+    except Exception as e:
+        print(f"Error during conversion: {e}")
