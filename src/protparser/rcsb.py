@@ -322,11 +322,11 @@ def download_rcsb(pdb_id, struct_format='cif', convert_if_fail=False, output_dir
                         file.write(response.content)
                     convert_cif_to_pdb(output_path, output_path.replace('.cif','.pdb'))
                     os.remove(output_path)
-                    print(f"Deleted original .cif file download. See {output_path.replace('.cif','.pdb')} for the PDB")
+                    raise Exception(f"Deleted original .cif file download. See {output_path.replace('.cif','.pdb')} for the PDB")
                 else:
-                    print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
+                    raise Exception(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
             else:
-                print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
+                raise Exception(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
     
     return None   
     
