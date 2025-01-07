@@ -293,7 +293,7 @@ def download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=None):
     response = requests.get(url)
     return response, output_path
 
-def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
+def download_rcsb(pdb_id, struct_format='cif', convert_if_fail=False, output_dir=None):
     '''
     Download mmCIF file with provided uniprot_id and optional output_path for the downloaded file.
 
@@ -307,7 +307,7 @@ def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
         #print(f"File downloaded successfully and saved as {output_path}")
     else:
         # try downloading cif and converting to pdb, if pdb is the format. PDBs aren't available for everything on RCSB
-        if struct_format=='pdb':
+        if struct_format=='pdb' and convert_if_fail:
             response, output_path = download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=output_dir)
             if response.status_code == 200:
                 with open(output_path, 'wb') as file:
@@ -317,6 +317,8 @@ def download_rcsb(pdb_id, struct_format='cif',output_dir=None):
                 print(f"Deleted original .cif file download. See {output_path.replace('.cif','.pdb')} for the PDB")
             else:
                 print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
+        else:
+            print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
         return None
     
     return output_path
