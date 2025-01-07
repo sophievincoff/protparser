@@ -4,6 +4,7 @@ pyproject.toml
 src/protparser/__init__.py
 src/protparser/alphafold.py
 src/protparser/rcsb.py
+src/protparser/utils.py
 src/protparser.egg-info/PKG-INFO
 src/protparser.egg-info/SOURCES.txt
 src/protparser.egg-info/dependency_links.txt

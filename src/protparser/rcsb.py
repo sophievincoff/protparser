@@ -282,11 +282,12 @@ class RCSBStructure:
     
 def download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=None):
     full_file_name = f"{pdb_id}.{struct_format}"     # define file name that will be found on the AlphaFold2 database.
+    full_file_name_uppercase = f"{pdb_id.upper()}.{struct_format}"
     # if output path not provided, just save locally under full_file_name
-    output_path=full_file_name
+    output_path=full_file_name_uppercase
     if output_dir is not None:
         os.makedirs(output_dir,exist_ok=True)
-        output_path = f"{output_dir}/{full_file_name}"
+        output_path = f"{output_dir}/{full_file_name_uppercase}"
 
     # request the URL for the file 
     url = f"https://files.rcsb.org/download/{full_file_name}"
@@ -296,33 +297,39 @@ def download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=None):
 def download_rcsb(pdb_id, struct_format='cif', convert_if_fail=False, output_dir=None):
     '''
     Download mmCIF file with provided uniprot_id and optional output_path for the downloaded file.
+    Try both the uppercase and lowercase version of the ID, but convert to uppercase if the lowercase version is found.
 
     Return: path to downloaded file if successful, None otherwise
     '''
-    response, output_path = download_rcsb_apicall(pdb_id, struct_format=struct_format,output_dir=output_dir)
+    # try both the uppercase and lowercase ID
+    uppercase_id = pdb_id.upper()
+    lowercase_id = pdb_id.lower()
+    
+    for formatted_pdb_id in [uppercase_id, lowercase_id]:
+        response, output_path = download_rcsb_apicall(pdb_id, struct_format=struct_format,output_dir=output_dir)
 
-    if response.status_code == 200:
-        with open(output_path, 'wb') as file:
-            file.write(response.content)
-        #print(f"File downloaded successfully and saved as {output_path}")
-    else:
-        # try downloading cif and converting to pdb, if pdb is the format. PDBs aren't available for everything on RCSB
-        if struct_format=='pdb' and convert_if_fail:
-            response, output_path = download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=output_dir)
-            if response.status_code == 200:
-                with open(output_path, 'wb') as file:
-                    file.write(response.content)
-                convert_cif_to_pdb(output_path, output_path.replace('.cif','.pdb'))
-                os.remove(output_path)
-                print(f"Deleted original .cif file download. See {output_path.replace('.cif','.pdb')} for the PDB")
+        if response.status_code == 200:
+            with open(output_path, 'wb') as file:
+                file.write(response.content)
+            return output_path
+            #print(f"File downloaded successfully and saved as {output_path}")
+        else:
+            # try downloading cif and converting to pdb, if pdb is the format. PDBs aren't available for everything on RCSB
+            if struct_format=='pdb' and convert_if_fail:
+                response, output_path = download_rcsb_apicall(pdb_id, struct_format='cif',output_dir=output_dir)
+                if response.status_code == 200:
+                    with open(output_path, 'wb') as file:
+                        file.write(response.content)
+                    convert_cif_to_pdb(output_path, output_path.replace('.cif','.pdb'))
+                    os.remove(output_path)
+                    print(f"Deleted original .cif file download. See {output_path.replace('.cif','.pdb')} for the PDB")
+                else:
+                    print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
             else:
                 print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
-        else:
-            print(f"Failed to download {pdb_id} file. Status code: {response.status_code}")
-        return None
     
-    return output_path
-
+    return None   
+    
 def convert_cif_to_pdb(cif_file: str, pdb_file: str):
     """
     Converts an MMCIF (.cif) file to a PDB (.pdb) file.
