@@ -214,6 +214,33 @@ class RCSBStructure:
                 info['canonical_sequence'][0:7] + '...',
                 len(info['pfam_info'])
             ))
+            
+    def get_chain_info_df(self):
+        """
+        Turn self.chain_info into a pandas dataframe and return it
+        
+        Returns:
+            chain_info_df (pandas.DataFrame)
+        """
+        data = [] 
+        
+        for chain, info in self.chain_info.items():
+            chain_data = {
+                'Chain': chain,
+                'Auth': ','.join(info['author_chain']),
+                'UniProt IDs': ','.join(list(info['uniprot_ids'].keys())) if info['uniprot_ids'] is not None else "None",
+                'PDB Seq length': len(info['pdb_sequence']),
+                'PDB Seq': info['pdb_sequence'],
+                'Canonical Seq length': len(info['canonical_sequence']),
+                'Canonical Seq': info['canonical_sequence'],
+                'Pfam domains': info['pfam_info'],
+                'Pfam domains number': len(info['pfam_info'])
+            }
+            
+            data.append(chain_data)
+        chain_info_df = pd.DataFrame(data)
+        
+        return chain_info_df
 
     def _process_item(self, cur_key, item, indent=0):
         """
