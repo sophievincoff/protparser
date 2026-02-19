@@ -1,1 +1,4 @@
 sophinstruct.txt
+src/protparser.egg-info/
+*/__pycache__/
+tests
