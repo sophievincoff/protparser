@@ -102,7 +102,10 @@ class RCSBStructure:
         valid_extra_tokens: Optional[Set[str]] = None,
     ):
         self.pdb_id = str(pdb_id).strip().lower()
+        # Set cache dir and create it if it doesn't exist
         self.cache_dir = Path(cache_dir) if cache_dir is not None else None
+        if self.cache_dir is not None:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
 
         self.cif_path: Optional[Path] = Path(cif_path) if cif_path is not None else None
 
@@ -274,6 +277,8 @@ class RCSBStructure:
         doc = gemmi.cif.read_file(str(cif_path))
         block = doc.sole_block()
         entity_lookup = build_entity_lookup(block)
+        
+        entity_source_lookup = build_entity_source_lookup(block)
 
         asym = block.find_mmcif_category("_struct_asym")
         if asym is None:
@@ -319,6 +324,10 @@ class RCSBStructure:
             chain_id = clean_str(chain_id_col[i])     # label chain
             entity_id = clean_str(entity_id_col[i])
             
+            src = entity_source_lookup.get(entity_id, {}) or {}
+            species_name = src.get("species_name", np.nan)
+            taxid = src.get("taxid", np.nan)
+                        
             entity_meta = entity_lookup.get(entity_id, {})
 
             chain_id_auth = chain_id
@@ -370,6 +379,7 @@ class RCSBStructure:
                 "chain_id": chain_id,
                 "chain_id_auth": chain_id_auth,
                 "entity_id": entity_id,
+    
                 
                 # --- entity-level fields
                 "entity_type": entity_meta.get("entity_type", ""),
@@ -378,6 +388,9 @@ class RCSBStructure:
                 #"entity_formula_weight": entity_meta.get("entity_formula_weight", np.nan),
                 "entity_number_of_molecules": entity_meta.get("entity_number_of_molecules", np.nan),
                 "entity_mutation": entity_meta.get("entity_mutation", np.nan),
+                
+                "species_name": species_name,
+                "species_taxid": taxid,
 
                 # optional extras
                 "entity_ec": entity_meta.get("entity_ec", np.nan),
