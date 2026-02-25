@@ -1008,8 +1008,8 @@ class RCSBStructure:
         if entry is not None and not entry.empty:
             e0 = entry.iloc[0]
             entry_ptm = e0.get("entry_has_protein_modification", np.nan)
-            entry_ptm_str = "NA" if pd.isna(entry_ptm) else str(bool(entry_ptm))
-            lines.append(f"- Entry flag has_protein_modification: {entry_ptm_str}")
+            entry_ptm_str = False if pd.isna(entry_ptm) else str(bool(entry_ptm))
+            lines.append(f"- Entry is flagged wtih \'has_protein_modification\': {entry_ptm_str}")
 
         # ---- Basic counts + binary summary
         is_binary = bool(entry.iloc[0].get("is_binary_interaction", False)) if entry is not None and len(entry) else False
