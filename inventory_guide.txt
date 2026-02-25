@@ -1,0 +1,228 @@
+DATA SOURCE NOTE (how these columns were obtained)
+
+This file mixes two kinds of information:
+
+1) mmCIF-derived (from the structure file itself)
+- Most columns are computed directly from the downloaded mmCIF file for the PDB entry.
+- These reflect what is encoded in the deposited structure record (chains, entities, sequences, residue names, modification annotations, etc.).
+- These fields can be reproduced from the mmCIF file alone.
+
+2) RCSB website–derived (“RCSB-enriched” fields)
+- Some columns are not taken from the mmCIF file.
+- Instead, they are added by querying the RCSB PDB website’s published data endpoints for that entry/entity.
+- This corresponds to information visible on RCSB web pages, accessed in a structured format.
+- These fields often include:
+  - UniProt ID mappings / alignments
+  - Pfam/domain annotations
+  - Disorder / disordered binding site annotations
+  - Sequence conflict / insertion / deletion / mutation counts (from sequence-to-UniProt alignment summaries)
+- These fields require internet access at runtime.
+- They depend on the current RCSB annotations at the time of query and may change if RCSB updates cross-references or annotations.
+
+How to interpret this:
+- If a column is marked "mmCIF-derived", it comes directly from the deposited structure file.
+- If a column is marked "RCSB website–derived", it reflects additional annotation or cross-references provided by RCSB.
+
+
+====================================================================
+ENTRY INVENTORY (one row per PDB)
+====================================================================
+
+1) Core entry metadata
+
+- pdb_id (mmCIF-derived): Lowercase PDB ID.
+- pdb_title (mmCIF-derived): Structure title.
+- entry_has_protein_modification (mmCIF-derived): Entry-level flag indicating whether protein modifications are annotated.
+- entry_has_protein_modification_raw (mmCIF-derived): Raw value of the entry-level modification flag before normalization.
+
+2) Chain counts
+
+- n_chains_total (mmCIF-derived): Total number of chains in the structure.
+- n_protein_chains (mmCIF-derived): Number of protein polymer chains.
+
+3) Chain category lists
+
+- protein_chains (mmCIF-derived): PDB chain IDs that are protein polymers.
+- protein_chains_auth (mmCIF-derived): Author chain IDs for protein chains.
+- dna_chains (mmCIF-derived): PDB chain IDs that are DNA polymers.
+- dna_chains_auth (mmCIF-derived): Author chain IDs for DNA chains.
+- rna_chains (mmCIF-derived): PDB chain IDs that are RNA polymers.
+- rna_chains_auth (mmCIF-derived): Author chain IDs for RNA chains.
+- water_chains (mmCIF-derived): Chain IDs corresponding to water entities.
+- water_chains_auth (mmCIF-derived): Author chain IDs for water entities.
+- nonpolymer_other_chains (mmCIF-derived): Chain IDs for other non-polymer entities (non-water ligands, etc.).
+- nonpolymer_other_chains_auth (mmCIF-derived): Author chain IDs for other non-polymers.
+
+4) Names and species
+
+- protein_names (mmCIF-derived): Pipe-joined protein entity descriptions.
+- dna_names (mmCIF-derived): Pipe-joined DNA entity descriptions.
+- rna_names (mmCIF-derived): Pipe-joined RNA entity descriptions.
+- nonpolymer_names (mmCIF-derived): Pipe-joined non-polymer entity names.
+- protein_species_names (mmCIF-derived): Pipe-joined species names for protein entities.
+- protein_species_taxids (mmCIF-derived): Pipe-joined NCBI taxonomic IDs for protein entities.
+
+5) UniProt rollup
+
+- protein_uniprot_ids (RCSB website–derived): Pipe-joined UniProt IDs mapped to protein entities.
+
+6) PTM and sequence quality rollups
+
+- has_any_chain_ptm_evidence (mmCIF-derived): True if any chain shows PTM evidence.
+- ptm_chains (mmCIF-derived): Chain IDs with PTM evidence.
+- ptm_chains_auth (mmCIF-derived): Author chain IDs with PTM evidence.
+- has_any_chain_noncanonical_evidence (mmCIF-derived): True if any chain contains non-canonical residue names in the structure.
+- noncanonical_chains (mmCIF-derived): Chain IDs with non-canonical residue evidence.
+- has_any_chain_invalid_aa (mmCIF-derived): True if any protein chain has invalid/ambiguous canonical tokens.
+- invalid_aa_chains (mmCIF-derived): Chain IDs with invalid/ambiguous canonical tokens.
+- invalid_aa_chains_auth (mmCIF-derived): Author chain IDs for invalid-AA chains.
+
+7) Binary interaction summary
+
+- binary_n_unique_protein_seqs (mmCIF-derived): Number of unique protein canonical sequences.
+- is_binary_interaction (mmCIF-derived): True if exactly two unique protein sequences are present.
+- binary_stoichiometry (mmCIF-derived): Stoichiometry of the two protein sequences (e.g., 1:1, 2:1).
+- reduced_binary_stoichiometry (mmCIF-derived): Reduced form of the stoichiometry (e.g., 2:2 → 1:1).
+
+
+====================================================================
+CHAIN INVENTORY (one row per chain)
+====================================================================
+
+1) Core identity
+
+- pdb_id (mmCIF-derived): Lowercase PDB ID.
+- chain_id (mmCIF-derived): Standard/label chain ID.
+- chain_id_auth (mmCIF-derived): Author-provided chain ID.
+- entity_id (mmCIF-derived): Entity identifier for this chain.
+
+2) Entity metadata
+
+- entity_type (mmCIF-derived): Entity type (polymer, non-polymer, water, etc.).
+- entity_description (mmCIF-derived): Human-readable entity description.
+- entity_src_method (mmCIF-derived): Source method (nat, man, syn, etc.).
+- entity_number_of_molecules (mmCIF-derived): Number of molecules for this entity.
+- entity_mutation (mmCIF-derived): Mutation annotation at entity level.
+- entity_ec (mmCIF-derived): EC number(s) if applicable.
+- entity_fragment (mmCIF-derived): Fragment annotation if present.
+- entity_details (mmCIF-derived): Additional entity details.
+- nonpoly_name (mmCIF-derived): Name of non-polymer entity if applicable.
+- chem_comp_name (mmCIF-derived): Chemical component name for non-polymers.
+
+3) Polymer type and canonical sequence
+
+- entity_poly_type (mmCIF-derived): Polymer type (e.g., polypeptide(L), DNA, RNA).
+- seq_can (mmCIF-derived): Canonical one-letter sequence.
+- seq_len (derived from seq_can): Length of canonical sequence.
+
+4) Sequence validation
+
+- is_valid_aa (mmCIF-derived): True if canonical sequence contains only allowed amino acid tokens.
+- invalid_letters (mmCIF-derived): List of invalid/ambiguous canonical characters.
+
+5) Resolved structure coverage
+
+- seq_resolved_masked (mmCIF-derived): Canonical-length sequence with unresolved positions masked.
+- seq_resolved_only (mmCIF-derived): Sequence consisting only of resolved residues.
+- n_resolved (mmCIF-derived): Number of resolved residues.
+- frac_resolved (mmCIF-derived): Fraction of canonical residues resolved.
+
+6) PTM evidence
+
+- has_ptm (mmCIF-derived): True if PTM evidence is detected for this chain.
+- has_ptm_reason (mmCIF-derived): Human-readable reason for PTM detection.
+- ptm_detect_sources (mmCIF-derived): Which detection mechanisms triggered PTM evidence.
+- ptm_resnames (mmCIF-derived): Residue names associated with PTM detection (if used).
+- ptm_mf_chain_hit (mmCIF-derived): True if chain is referenced in modification_feature records.
+- ptm_categories (mmCIF-derived): PTM categories from modification_feature.
+- ptm_types (mmCIF-derived): PTM types (e.g., Phosphorylation).
+- ptm_comp_ids (mmCIF-derived): Modification component IDs (e.g., PTR).
+- ptm_n_features (mmCIF-derived): Number of modification_feature rows.
+
+7) Non-canonical residues (structure-level)
+
+- has_noncanonical_resname (mmCIF-derived): True if non-standard residue names appear in ATOM records.
+- noncanonical_resnames (mmCIF-derived): List of non-canonical residue names.
+- noncanon_pos_can (mmCIF-derived): Canonical positions of non-canonical residues.
+- noncanon_pos_resolved_only (mmCIF-derived): Resolved-only positions of non-canonical residues.
+
+8) Annotated sequences
+
+- seq_can_annot (mmCIF-derived): Canonical sequence with inline modification tokens.
+- seq_resolved_masked_annot (mmCIF-derived): Resolved-masked sequence with modification tokens.
+- ptm_pos_can (mmCIF-derived): Canonical positions of PTM-tagged residues.
+- ptm_pos_resolved_only (mmCIF-derived): Resolved-only positions of PTM-tagged residues.
+
+9) RCSB website–derived annotations (optional; require internet access)
+
+- uniprot_ids (RCSB website–derived): UniProt accession(s) mapped to this polymer entity.
+- mutation_pos_can (RCSB website–derived): Canonical mutation positions from UniProt alignment.
+- rcsb_conflict_count (RCSB website–derived): Alignment conflict count.
+- rcsb_deletion_count (RCSB website–derived): Alignment deletion count.
+- rcsb_insertion_count (RCSB website–derived): Alignment insertion count.
+- rcsb_mutation_count (RCSB website–derived): Alignment mutation count.
+- rcsb_non_std_monomer_count (RCSB website–derived): Non-standard monomer count from RCSB annotation.
+- rcsb_sample_sequence_length (RCSB website–derived): Sample sequence length from RCSB annotation.
+
+
+====================================================================
+ENTITY INVENTORY (one row per entity)
+====================================================================
+
+1) Identity and chain grouping
+
+- pdb_id (mmCIF-derived): Lowercase PDB ID.
+- entity_id (mmCIF-derived): Entity identifier.
+- chain_display (derived): Human-friendly chain display string.
+- chain_ids (mmCIF-derived): Pipe-joined PDB chain IDs belonging to this entity.
+- chain_id_auths (mmCIF-derived): Pipe-joined author chain IDs belonging to this entity.
+- entity_varying_columns (derived): Columns whose values differ across chains within this entity.
+
+2) Entity metadata
+
+- entity_type (mmCIF-derived): Entity type.
+- entity_description (mmCIF-derived): Entity description.
+- entity_src_method (mmCIF-derived): Source method.
+- entity_number_of_molecules (mmCIF-derived): Number of molecules.
+- entity_mutation (mmCIF-derived): Mutation annotation.
+- entity_ec (mmCIF-derived): EC number(s).
+- entity_fragment (mmCIF-derived): Fragment annotation.
+- entity_details (mmCIF-derived): Additional details.
+- nonpoly_name (mmCIF-derived): Non-polymer name if applicable.
+- chem_comp_name (mmCIF-derived): Chemical component name if applicable.
+
+3) Sequence and structure features (aggregated from chains)
+
+- seq_can (mmCIF-derived): Canonical sequence.
+- seq_len (derived): Length of canonical sequence.
+- is_valid_aa (mmCIF-derived): Canonical sequence validity.
+- invalid_letters (mmCIF-derived): Invalid canonical characters if any.
+- entity_poly_type (mmCIF-derived): Polymer type.
+- has_ptm (mmCIF-derived): True if any chain shows PTM evidence.
+- has_noncanonical_resname (mmCIF-derived): True if any chain shows non-canonical residues.
+- noncanonical_resnames (mmCIF-derived): Aggregated non-canonical residue names.
+- ptm_categories (mmCIF-derived): Aggregated PTM categories.
+- ptm_types (mmCIF-derived): Aggregated PTM types.
+- ptm_comp_ids (mmCIF-derived): Aggregated PTM component IDs.
+- ptm_n_features (mmCIF-derived): Total PTM feature count for this entity.
+- seq_resolved_masked (mmCIF-derived): Resolved-masked sequence.
+- seq_resolved_only (mmCIF-derived): Resolved-only sequence.
+- n_resolved (mmCIF-derived): Number of resolved residues.
+- frac_resolved (mmCIF-derived): Fraction resolved.
+- seq_can_annot (mmCIF-derived): Canonical sequence with modification tokens.
+- seq_resolved_masked_annot (mmCIF-derived): Resolved-masked sequence with modification tokens.
+- ptm_pos_can (mmCIF-derived): Canonical PTM positions.
+- noncanon_pos_can (mmCIF-derived): Canonical non-canonical positions.
+- ptm_pos_resolved_only (mmCIF-derived): Resolved-only PTM positions.
+- noncanon_pos_resolved_only (mmCIF-derived): Resolved-only non-canonical positions.
+
+4) RCSB website–derived annotations (optional)
+
+- uniprot_ids (RCSB website–derived): UniProt accession(s) mapped to this entity.
+- mutation_pos_can (RCSB website–derived): Canonical mutation positions from UniProt alignment.
+- rcsb_conflict_count (RCSB website–derived): Alignment conflict count.
+- rcsb_deletion_count (RCSB website–derived): Alignment deletion count.
+- rcsb_insertion_count (RCSB website–derived): Alignment insertion count.
+- rcsb_mutation_count (RCSB website–derived): Alignment mutation count.
+- rcsb_non_std_monomer_count (RCSB website–derived): Non-standard monomer count.
+- rcsb_sample_sequence_length (RCSB website–derived): Sample sequence length.
